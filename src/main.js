@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import axios from "axios";
+import {createPinia} from "pinia";
 
 import PrimeVue from 'primevue/config';
 import AutoComplete from 'primevue/autocomplete';
@@ -104,6 +106,19 @@ import CodeHighlight from '@/components/CodeHighlight.vue';
 import BlockViewer from '@/components/BlockViewer.vue';
 
 import '@/assets/styles.scss';
+import {API} from "@/config/Endpoint";
+import numberOnly from "@/customDirectives/numberOnly";
+
+//setup axios Authorization header
+axios.defaults.baseURL = API.BASE_URL;
+axios.defaults.withCredentials = true;
+let token = null;
+const user = JSON.parse(localStorage.getItem('user'));
+if(user !== null && user !== undefined) {
+    token = user.accessToken;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+const pinia = createPinia();
 
 const app = createApp(App);
 
@@ -112,11 +127,13 @@ app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(DialogService);
 app.use(ConfirmationService);
+app.use(pinia);
 
 app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);
 app.directive('ripple', Ripple);
 app.directive('styleclass', StyleClass);
+app.directive('numbers-only', numberOnly)
 
 app.component('CodeHighlight', CodeHighlight);
 app.component('BlockViewer', BlockViewer);

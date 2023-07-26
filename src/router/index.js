@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
+import CustomerList from "@/views/Customer/CustomerList.vue";
+import { userStore } from "@/store/user.store";
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -11,7 +13,26 @@ const router = createRouter({
                 {
                     path: '/',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/Dashboard.vue'),
+                    meta: {
+                        authenticated: true
+                    }
+                },
+                {
+                    path: '/customer',
+                    name: 'customer',
+                    component: () => import('@/views/Customer/Customer.vue'),
+                    meta: {
+                        authenticated: true
+                    }
+                },
+                {
+                    path: '/customer/all',
+                    name: 'customerList',
+                    component: ()=> import('@/views/Customer/CustomerList.vue'),
+                    meta: {
+                        authenticated: true
+                    }
                 },
                 {
                     path: '/uikit/formlayout',
@@ -172,4 +193,11 @@ const router = createRouter({
     ]
 });
 
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.authenticated) && !userStore().isAuthenticated) {
+        next({ name: 'login' })
+    } else {
+        next()
+    }
+})
 export default router;
